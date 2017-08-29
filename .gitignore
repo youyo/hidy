@@ -1,0 +1,8 @@
+#
+.env*
+hidy
+!lib/hidy/
+vendor/
+*.swp
+tmp/
+*.zip
