@@ -43,11 +43,13 @@ var encCmd = &cobra.Command{
 	Short: "Encrypt",
 	Long:  `Encrypt`,
 	Run: func(cmd *cobra.Command, args []string) {
-		p := viper.Get("aws_profile").(string)
-		b := viper.Get("s3_bucket").(string)
-		keyId := viper.Get("kms_key_id").(string)
 		cfg, _ := hidy.NewConfig()
-		cfg.SetProfileName(p)
+		awsProfile := viper.Get("aws_profile").(string)
+		s3Bucket := viper.Get("s3_bucket").(string)
+		kmsKeyId := viper.Get("kms_key_id").(string)
+		cfg.SetProfileName(awsProfile)
+		cfg.SetS3Bucket(s3Bucket)
+		cfg.SetKmsKeyId(kmsKeyId)
 		_ = cfg.FetchArn()
 		s, _ := hidy.NewSession(cfg.SourceProfile)
 		svc := hidy.NewService(s)
@@ -57,20 +59,20 @@ var encCmd = &cobra.Command{
 			*resp.Credentials.SecretAccessKey,
 			*resp.Credentials.SessionToken,
 		)
-		ss, _ := session.NewSession(&aws.Config{Credentials: creds})
+		session, _ := session.NewSession(&aws.Config{Credentials: creds})
 
-		kmsClient := kms.New(ss)
+		kmsClient := kms.New(session)
 		secretBytes, _ := ioutil.ReadFile(encFile)
 		params := &kms.EncryptInput{
-			KeyId:     &keyId,
+			KeyId:     &cfg.KmsKeyId,
 			Plaintext: secretBytes,
 		}
 		r, _ := kmsClient.Encrypt(params)
 
-		s3Client := s3.New(ss)
+		s3Client := s3.New(session)
 		input := &s3.PutObjectInput{
 			Body:                 aws.ReadSeekCloser(bytes.NewReader(r.CiphertextBlob)),
-			Bucket:               aws.String(b),
+			Bucket:               aws.String(cfg.S3Bucket),
 			Key:                  aws.String("hidy_" + encFile),
 			ServerSideEncryption: aws.String("AES256"),
 			Tagging:              aws.String("CreatedBy=hidy"),

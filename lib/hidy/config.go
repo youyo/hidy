@@ -4,7 +4,6 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
-	"strings"
 
 	ini "gopkg.in/ini.v1"
 )
@@ -18,6 +17,8 @@ type (
 		MfaSerial     string
 		MfaCode       string
 		ProfileName   string
+		S3Bucket      string
+		KmsKeyId      string
 	}
 )
 
@@ -46,19 +47,16 @@ func loadConfig(configPath string) (cfg *ini.File, err error) {
 	return
 }
 
-func (cfg *Config) AvailableArn() (list []string) {
-	sections := cfg.Data.Sections()
-	for _, s := range sections {
-		if s.HasKey("role_arn") {
-			n := strings.Replace(s.Name(), "profile ", "", 1)
-			list = append(list, n)
-		}
-	}
-	return
-}
-
 func (cfg *Config) SetProfileName(profileName string) {
 	cfg.ProfileName = profileName
+}
+
+func (cfg *Config) SetS3Bucket(s3Bucket string) {
+	cfg.S3Bucket = s3Bucket
+}
+
+func (cfg *Config) SetKmsKeyId(kmsKeyId string) {
+	cfg.KmsKeyId = kmsKeyId
 }
 
 func (cfg *Config) SetMfaCode(mfaCode string) {
