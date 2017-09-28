@@ -4,7 +4,6 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
-	"strings"
 
 	ini "gopkg.in/ini.v1"
 )
@@ -43,17 +42,6 @@ func configPath() (c string) {
 
 func loadConfig(configPath string) (cfg *ini.File, err error) {
 	cfg, err = ini.Load(configPath)
-	return
-}
-
-func (cfg *Config) AvailableArn() (list []string) {
-	sections := cfg.Data.Sections()
-	for _, s := range sections {
-		if s.HasKey("role_arn") {
-			n := strings.Replace(s.Name(), "profile ", "", 1)
-			list = append(list, n)
-		}
-	}
 	return
 }
 
