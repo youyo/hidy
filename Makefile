@@ -15,10 +15,12 @@ deps: setup
 ## Build
 build: deps
 	go build -o artifact/$(Name)
+	chmod 755 artifact/$(Name)
 
 ## Release
 release: build
 	ghr -t ${GITHUB_TOKEN} -u $(OWNER) -r $(Name) --replace $(Version) artifact/
+	rm -rf artifact/
 
 ## Show help
 help:
