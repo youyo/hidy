@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -16,20 +15,11 @@ import (
 	"github.com/youyo/hidy/lib/hidy"
 )
 
-/*
-var (
-	name    string
-	file    string
-	str     string
-	value   string
-	profile string
-)
-*/
-
-var setCmd = &cobra.Command{
-	Use:   "set",
-	Short: "Set to Parameter-store",
-	Long:  `Set to Parameter-store`,
+// deleteCmd represents the delete command
+var deleteCmd = &cobra.Command{
+	Use:   "delete",
+	Short: "Delete from Parameter-store",
+	Long:  `Delete from Parameter-store`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cfg, _ := hidy.NewConfig()
 		awsProfile, err := func() (p string, err error) {
@@ -60,16 +50,11 @@ var setCmd = &cobra.Command{
 
 		ssmClient := ssm.New(session)
 		ctx := context.Background()
-		value, err := readValue(str, file)
+		params := &ssm.DeleteParameterInput{
+			Name: aws.String(name),
+		}
+		_, err = ssmClient.DeleteParameterWithContext(ctx, params)
 		if err != nil {
-			fmt.Println(err)
-		}
-		params := &ssm.PutParameterInput{
-			Name:  aws.String(name),
-			Type:  aws.String("SecureString"),
-			Value: aws.String(value),
-		}
-		if _, err = ssmClient.PutParameterWithContext(ctx, params); err != nil {
 			fmt.Println(err)
 		} else {
 			fmt.Println("success")
@@ -77,21 +62,7 @@ var setCmd = &cobra.Command{
 	},
 }
 
-func readValue(str, file string) (value string, err error) {
-	if str != "" {
-		value = str
-	} else if file != "" {
-		b, _ := ioutil.ReadFile(file)
-		value = string(b)
-	} else {
-		err = errors.New("value is not set.")
-	}
-	return
-}
-
 func init() {
-	RootCmd.AddCommand(setCmd)
-	setCmd.Flags().StringVarP(&name, "name", "n", "", "Parameter name")
-	setCmd.Flags().StringVarP(&file, "file", "f", "", "A file to read the string to be set in the parameter store")
-	setCmd.Flags().StringVarP(&str, "string", "s", "", "String to set for the parameter store")
+	RootCmd.AddCommand(deleteCmd)
+	deleteCmd.Flags().StringVarP(&name, "name", "n", "", "Parameter name")
 }

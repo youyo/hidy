@@ -17,8 +17,6 @@ type (
 		MfaSerial     string
 		MfaCode       string
 		ProfileName   string
-		S3Bucket      string
-		KmsKeyId      string
 	}
 )
 
@@ -49,14 +47,6 @@ func loadConfig(configPath string) (cfg *ini.File, err error) {
 
 func (cfg *Config) SetProfileName(profileName string) {
 	cfg.ProfileName = profileName
-}
-
-func (cfg *Config) SetS3Bucket(s3Bucket string) {
-	cfg.S3Bucket = s3Bucket
-}
-
-func (cfg *Config) SetKmsKeyId(kmsKeyId string) {
-	cfg.KmsKeyId = kmsKeyId
 }
 
 func (cfg *Config) SetMfaCode(mfaCode string) {
