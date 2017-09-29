@@ -49,7 +49,9 @@ var listCmd = &cobra.Command{
 
 		ssmClient := ssm.New(session)
 		ctx := context.Background()
-		params := &ssm.DescribeParametersInput{}
+		params := &ssm.DescribeParametersInput{
+			MaxResults: aws.Int64(50),
+		}
 		r, err := ssmClient.DescribeParametersWithContext(ctx, params)
 		if err != nil {
 			fmt.Println(err)
